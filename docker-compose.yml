@@ -12,9 +12,84 @@ services:
       - db-data:/var/lib/postgresql/data
       - ./postgres/:/docker-entrypoint-initdb.d/
     ports:
-      - "5432:5432"
+      - "5000:5432"
 
-# TODO добавить сервисы
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 15s
+      timeout: 15s
+      retries: 10
+
+  cars_service:
+    build: app/cars
+    container_name: cars_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_BASE_PORT: "5432"
+      DATA_BASE_NAME: "cars"
+      DATA_BASE_USER: "program"
+      DATA_BASE_PASS: "test"
+      DATA_BASE_HOST: "postgres"
+    ports:
+      - "8070:8070"
+
+  payment_service:
+    build: app/payment
+    container_name: payment_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_BASE_PORT: "5432"
+      DATA_BASE_NAME: "payments"
+      DATA_BASE_USER: "program"
+      DATA_BASE_PASS: "test"
+      DATA_BASE_HOST: "postgres"
+    ports:
+      - "8050:8050"
+
+  rental_service:
+    build: app/rental
+    container_name: rental_service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATA_BASE_PORT: "5432"
+      DATA_BASE_NAME: "rentals"
+      DATA_BASE_USER: "program"
+      DATA_BASE_PASS: "test"
+      DATA_BASE_HOST: "postgres"
+    ports:
+      - "8060:8060"
+
+  gateway_service:
+    build: app/gateway
+    container_name: gateway_service
+    depends_on:
+      - cars_service
+      - payment_service
+      - rental_service
+      - queue_service
+    environment:
+      CARS_SERVICE_HOST: "cars_service"
+      CARS_SERVICE_PORT: "8070"
+      PAYMENT_SERVICE_HOST: "payment_service"
+      PAYMENT_SERVICE_PORT: "8050"
+      RENTAL_SERVICE_HOST: "rental_service"
+      RENTAL_SERVICE_PORT: "8060"
+      QUEUE_SERVICE_HOST: "queue_service"
+      QUEUE_SERVICE_PORT: "8040"
+    ports:
+      - "8080:8080"
+
+  queue_service:
+    build: app/queue
+    container_name: queue_service
+    ports:
+      - "8040:8040"
 
 volumes:
   db-data:
