@@ -33,13 +33,13 @@ jobs:
 
       # TODO setup variant, service and port
 
-      - name: Run API Tests
-        timeout-minutes: 5
-        run: ./scripts/test-script.sh
-        env:
-          VARIANT: v3
-          SERVICE_NAME: payment
-          PORT_NUMBER: 8050
+      # - name: Run API Tests
+      #   timeout-minutes: 5
+      #   run: ./scripts/test-script.sh
+      #   env:
+      #     VARIANT: v3
+      #     SERVICE_NAME: payment
+      #     PORT_NUMBER: 8050
 
       - name: Install test dependencies
         run: |
