@@ -44,12 +44,10 @@ jobs:
       - name: Install test dependencies
         run: |
           pip install pytest==7.4.0
-          pip install pytest-flask==1.2.0
-          pip install marshmallow
-          pip install flask-migrate
-          pip install flask-restful
-          pip install flask-sqlalchemy
-          
+          pip install Flask==2.3.3
+          pip install Werkzeug==2.3.7
+          pip install flask-sqlalchemy marshmallow flask-migrate flask-restful
+
       - name: Run Unit Tests
         run: |
           pytest -v --maxfail=1 --disable-warnings
