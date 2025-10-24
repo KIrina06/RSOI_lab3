@@ -1,5 +1,5 @@
 from quart import Quart
-import psycopg2
+import pg8000
 
 from rental_service.interface.delete_rentail_finish import delete_rental_finish_blueprint
 from rental_service.models.rental_model import RentalModel

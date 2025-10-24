@@ -1,5 +1,5 @@
 from quart import Quart
-import psycopg2
+import pg8000
 from gateway.get_cars_blueprint import get_cars_blueprint
 from gateway.get_rentals_blueprint import get_rentals_blueprint
 from gateway.get_rental_blueprint import get_rental_blueprint

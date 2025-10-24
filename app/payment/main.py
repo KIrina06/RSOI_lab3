@@ -1,5 +1,5 @@
 from quart import Quart
-import psycopg2
+import pg8000
 from payment_service.models.payment_model import PaymentModel
 from payment_service.interface.get_payment import get_payment_blueprint
 from payment_service.interface.post_payment import post_payment_blueprint
