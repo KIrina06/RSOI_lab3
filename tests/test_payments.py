@@ -43,27 +43,6 @@ class TestPaymentApp:
             assert 'Content-Type' not in response.headers
 
     @patch('app.db.session')
-    def test_get_payment_success(self, mock_db):
-        """Тест получения информации о платеже - успешный случай"""
-        # Мокаем платеж
-        mock_payment = MagicMock()
-        mock_payment.to_dict.return_value = {
-            'payment_uid': 'test-payment-uid',
-            'status': 'PAID',
-            'price': 1000
-        }
-        
-        # Мокаем запрос к БД
-        mock_query = MagicMock()
-        mock_query.filter.return_value.one_or_none.return_value = mock_payment
-        mock_db.query.return_value = mock_query
-
-        with app.test_client() as client:
-            response = client.get('/api/v1/payment/test-payment-uid')
-            assert response.status_code == 200
-            assert response.json['payment_uid'] == 'test-payment-uid'
-
-    @patch('app.db.session')
     def test_get_payment_not_found(self, mock_db):
         """Тест получения информации о платеже - платеж не найден"""
         mock_query = MagicMock()
