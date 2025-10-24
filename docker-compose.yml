@@ -1,78 +1,44 @@
 version: "3"
 services:
-  postgres:
-    image: library/postgres:13
-    container_name: postgres
-    restart: on-failure
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: postgres
-    volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./postgres/:/docker-entrypoint-initdb.d/
-    ports:
-      - "5000:5432"
-
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 15s
-      timeout: 15s
-      retries: 10
-
   cars_service:
-    build: app/cars
+    build: src/cars_service
     container_name: cars_service
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       DATA_BASE_PORT: "5432"
-      DATA_BASE_NAME: "cars"
-      DATA_BASE_USER: "program"
-      DATA_BASE_PASS: "test"
-      DATA_BASE_HOST: "postgres"
+      DATA_BASE_NAME: "postgres"
+      DATA_BASE_USER: "postgres"
+      DATA_BASE_PASS: "8Rvbs9i9obYzU5cv"
+      DATA_BASE_HOST: "db.lwyekailhpupnhywwptq.supabase.co"
     ports:
       - "8070:8070"
 
   payment_service:
-    build: app/payment
+    build: src/payment_service
     container_name: payment_service
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       DATA_BASE_PORT: "5432"
-      DATA_BASE_NAME: "payments"
-      DATA_BASE_USER: "program"
-      DATA_BASE_PASS: "test"
-      DATA_BASE_HOST: "postgres"
+      DATA_BASE_NAME: "postgres"
+      DATA_BASE_USER: "postgres"
+      DATA_BASE_PASS: "8Rvbs9i9obYzU5cv"
+      DATA_BASE_HOST: "db.lwyekailhpupnhywwptq.supabase.co"
     ports:
       - "8050:8050"
 
   rental_service:
-    build: app/rental
+    build: src/rental_service
     container_name: rental_service
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       DATA_BASE_PORT: "5432"
-      DATA_BASE_NAME: "rentals"
-      DATA_BASE_USER: "program"
-      DATA_BASE_PASS: "test"
-      DATA_BASE_HOST: "postgres"
+      DATA_BASE_NAME: "postgres"
+      DATA_BASE_USER: "postgres"
+      DATA_BASE_PASS: "8Rvbs9i9obYzU5cv"
+      DATA_BASE_HOST: "db.lwyekailhpupnhywwptq.supabase.co"
     ports:
       - "8060:8060"
 
-  gateway_service:
-    build: app/gateway
-    container_name: gateway_service
-    depends_on:
-      - cars_service
-      - payment_service
-      - rental_service
-      - queue_service
+  gate_way_service:
+    build: src/gate_way_service
+    container_name: gate_way_service
     environment:
       CARS_SERVICE_HOST: "cars_service"
       CARS_SERVICE_PORT: "8070"
@@ -82,14 +48,13 @@ services:
       RENTAL_SERVICE_PORT: "8060"
       QUEUE_SERVICE_HOST: "queue_service"
       QUEUE_SERVICE_PORT: "8040"
+
     ports:
       - "8080:8080"
-
   queue_service:
-    build: app/queue
+    build: src/queue_service
     container_name: queue_service
     ports:
       - "8040:8040"
-
 volumes:
   db-data:
