@@ -31,12 +31,6 @@ jobs:
         env:
           WAIT_PORTS: 8080,8070,8060,8050
 
-      - name: Wait 15s
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '15s'
-
-
       # TODO setup variant, service and port
 
       - name: Run API Tests
@@ -44,8 +38,8 @@ jobs:
         run: ./scripts/test-script.sh
         env:
           VARIANT: v3
-          SERVICE_NAME: payment_service
-          PORT_NUMBER: 8050
+          SERVICE_NAME: paymentservice
+          PORT_NUMBER: 8060
 
       - uses: education/autograding@v1
         id: autograder
