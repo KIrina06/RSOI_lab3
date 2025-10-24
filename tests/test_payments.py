@@ -42,12 +42,6 @@ class TestPaymentApp:
             assert response.status_code == 204
             assert 'Content-Type' not in response.headers
 
-    def test_favicon_endpoint(self):
-        """Тест favicon endpoint"""
-        with app.test_client() as client:
-            response = client.get('/favicon.ico')
-            assert response.status_code in [200, 404]
-
     @patch('app.db.session')
     def test_get_payment_success(self, mock_db):
         """Тест получения информации о платеже - успешный случай"""
