@@ -1,54 +1,90 @@
-version: "3"
 services:
   postgres:
-    image: library/postgres:13
-    container_name: postgres
-    restart: on-failure
+    image: postgres:13
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: postgres
-    volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./postgres/:/docker-entrypoint-initdb.d/
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: car_rental
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - car-rental-network
 
-  # TODO добавить сервисы
-  gateway:
-    build: src/gatewayService/
-    container_name: gateway
-    restart: on-failure
+  redis:
+    image: redis:7-alpine
     ports:
-      - "8080:8080"
+      - "6379:6379"
+    networks:
+      - car-rental-network
 
-  payment:
-    build: src/paymentService/
-    container_name: payment
-    restart: on-failure
-    ports:
-      - "8050:8050"
-    depends_on:
-      - postgres
-
-
-  rental:
-    build: src/rentalService/
-    container_name: rental
-    restart: on-failure
-    ports:
-      - "8060:8060"
-    depends_on:
-      - postgres
-
-  cars:
-    build: src/carsService/
-    container_name: cars
-    restart: on-failure
+  cars-service:
+    build: ./cars-service
+    environment:
+      DB_HOST: postgres
+      DB_NAME: cars_db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_PORT: 5432
     ports:
       - "8070:8070"
     depends_on:
       - postgres
+    networks:
+      - car-rental-network
+
+  payment-service:
+    build: ./payment-service
+    environment:
+      DB_HOST: postgres
+      DB_NAME: payment_db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_PORT: 5432
+    ports:
+      - "8050:8050"
+    depends_on:
+      - postgres
+    networks:
+      - car-rental-network
+
+  rental-service:
+    build: ./rental-service
+    environment:
+      DB_HOST: postgres
+      DB_NAME: rental_db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_PORT: 5432
+    ports:
+      - "8060:8060"
+    depends_on:
+      - postgres
+    networks:
+      - car-rental-network
+
+  gateway-service:
+    build: ./gateway-service
+    environment:
+      CARS_SERVICE_URL: http://cars-service:8070
+      RENTAL_SERVICE_URL: http://rental-service:8060
+      PAYMENT_SERVICE_URL: http://payment-service:8050
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      - cars-service
+      - rental-service
+      - payment-service
+    networks:
+      - car-rental-network
 
 volumes:
-  db-data:
+  postgres_data:
+
+networks:
+  car-rental-network:
+    driver: bridge
